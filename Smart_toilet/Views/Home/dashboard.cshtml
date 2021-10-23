@@ -1,0 +1,203 @@
+﻿
+@{
+    ViewBag.Title = "dashboard";
+}
+
+<div class="wrapper">
+
+    <!-- Left side column. contains the logo and sidebar -->
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>Dashboard</h1>
+        </section>
+        <section class="content">
+            <div class="row">
+                <div class="col-lg-3 col-xs-6">
+                    <!-- small box -->
+                    <div class="small-box bg-aqua">
+                        <div class="inner">
+                            <h3 id="tEmployee">2</h3>
+
+                            <p>Total Toilet</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-users"></i>
+                        </div>
+                        <a href="@Url.Action("Index", "Home")" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+                <!-- ./col -->
+
+                <div class="col-lg-3 col-xs-6">
+                    <!-- small box -->
+                    <div class="small-box bg-green">
+                        <div class="inner">
+                            <h3 id="pEmployee">0</h3>
+
+                            <p>clean Toilet</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-users"></i>
+                        </div>
+                        <a href="@Url.Action("Index", "Home")" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-xs-6">
+                    <!-- small box -->
+                    <div class="small-box bg-yellow">
+                        <div class="inner">
+                            <h3 id="lEmployee">0</h3>
+
+                            <p>Today clean Toilet</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-users"></i>
+                        </div>
+                        <a href="@Url.Action("Index", "Home")" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+                <!-- ./col -->
+
+                <div class="col-lg-3 col-xs-6">
+                    <!-- small box -->
+                    <div class="small-box bg-red">
+                        <div class="inner">
+                            <h3 id="aEmployee">0</h3>
+
+                            <p>Today Unclean Toilet</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-users"></i>
+                        </div>
+                        <a href="@Url.Action("Index", "Home")" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="box-body chart-responsive">
+
+                    <div class="chart">
+                        <div id="map" style="height: 470px"></div>
+                    </div>
+                </div>
+
+
+
+            </div>
+
+
+        </section>
+
+
+
+    </div>
+</div>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?key=AIzaSyAD8ohcVeph4H385jDExqYfHeHROxFtbJo"></script>
+<script type="text/javascript">
+    var setLatLongvalues = function () {
+        $.ajax({
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            url: "/Home/Getloction",
+            data: "{}",
+            dataType: "json",
+            success: function (data) {
+
+                var locations = data;
+                var lat = locations[0].Lat;
+                var longt = locations[0].Lng;
+                var pth = new Array();
+                var map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 15,
+                    center: new google.maps.LatLng(lat, longt),
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+
+                });
+
+                var infowindow = new google.maps.InfoWindow();
+                var contentString;
+                var marker, i;
+                var circle;
+                var iconBase = '/Image/';
+                for (i = 0; i < locations.length; i++) {
+
+                    contentString = "<div style='float:right; padding: 10px;font-size: 18px;font-weight:bold;'>Toilet-"
+                        + locations[i].ToiletCode + "<br/>Lat-"
+                        + locations[i].Lat + "<br/>Long-"
+                        + locations[i].Lng + "<br/>Transaction Date & Time-"
+                        + locations[i].TDate +
+                        "<br/>clean-Yes<br/>Lock- Yes <br/>water tank- Yes"
+                       
+                        
+                      "  </div>";
+
+                    marker = new google.maps.Marker({
+                        position: new google.maps.LatLng(locations[i].Lat, locations[i].Lng),
+                        map: map,
+                        icon: iconBase + 'light.png',
+                        content: contentString
+                    });
+                    //circle = new google.maps.Circle({
+                    //    center: new google.maps.LatLng(locations[i].Lat, locations[i].Lng),
+                    //    map: map,
+                    //    radius: 50,          // IN METERS.
+                    //    fillColor: '#FF6600',
+                    //    fillOpacity: 0.3,
+                    //    strokeColor: "#FF6600",
+                    //    strokeWeight: 3         // DON'T SHOW CIRCLE BORDER.
+                    //});
+
+                    google.maps.event.addListener(marker, 'click', (function (marker, i) {
+                        return function () {
+                            infowindow.setContent(marker.content);
+                            infowindow.open(map, marker);
+                        }
+                    })(marker, i));
+                }
+
+
+            },
+            error: function (result) {
+                alert("error");
+            }
+        });
+
+    };
+
+    $(function () {
+       // Notification();
+        setLatLongvalues();
+
+    });
+   @*var Notification = function () {
+        $.ajax({
+            url: "@Url.Action("DashbordNotificaton", "Home")",
+            success: function (result) {
+                SetDashbord(result);
+                  Cart(result);
+            },
+            error: function (xhr, status, error) {
+                alert("Result: " + status + " " + error + " " + xhr.status + " " + xhr.statusText)
+            }
+        });
+        function SetDashbord(txtData) {
+
+            $('#tEmployee').html(txtData.Total_tran);
+
+            $('#lEmployee').html(txtData.Total_tran);
+
+
+        }
+
+       }*@
+
+</script>
+
+
+@{
+    ViewBag.Title = "dashboard";
+}
+
+<h2>dashboard</h2>
+

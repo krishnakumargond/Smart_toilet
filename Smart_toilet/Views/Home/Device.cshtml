@@ -1,0 +1,123 @@
+﻿@model IEnumerable<Smart_toilet.DAL.tbl_Toilet>
+@{
+    ViewBag.Title = "Device";
+}
+
+<div class="wrapper">
+
+    <!-- Left side column. contains the logo and sidebar -->
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+
+        <section class="content">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box-header">
+                        <div class="box-title">  <button type="button" class="btn btn-block btn-primary btn-lg" onclick='window.location="@Url.Action("AddDevice","Home", new { DeviceId = 0})"'><i class="fa fa-plus"></i>&nbsp; Add Toilet  </button></div>
+                    </div>
+
+                    <div class="box">
+
+                        <div class="box-header">
+
+
+                            <br />
+                            <h3 class="box-title">All Toilet Details</h3>
+                        </div>
+                        <!-- /.box-header -->
+                        <div class="box-body" style="overflow:auto">
+                            <table id="example1" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr class="bg-primary">
+                                        <th>S.No</th>
+                                        <th>Toilet Code</th>
+                                        <th>Toilet</th>
+                                        <th>Status</th>
+                                        <th>Edit</th>
+                                        <th>Delete</th>
+
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    @Html.Raw(TempData["msg"])
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td id="id">@item.Id</td>
+                                            <td>@item.ToiletCode</td>
+                                            <th>@item.Address</th>
+                                            <td>
+                                                @if (item.IsActive == true)
+                                                {
+                                                    <span style="color:forestgreen"><b>IsACTIVE</b></span>
+                                                }
+                                                else
+                                                {
+                                                    <span style="color:red"><b>InACTIVE</b></span>
+                                                }
+                                            </td>
+
+                                            <td>
+
+
+                                                <a href="@Url.Action("AddDevice", "Home", new { DeviceId = item.Id })">
+                                                    <i class="glyphicon glyphicon-pencil text-primary "></i><span>
+                                                        <strong>Edit</strong>
+                                                    </span>
+                                                </a>
+
+                                            </td>
+                                            <td>
+
+
+                                                <a class="Delete" href=""><i class="glyphicon glyphicon-trash text-danger"></i></a>
+
+                                            </td>
+
+
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+
+                        </div>
+                        <!-- /.box-body -->
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script type="text/javascript">
+    $("body").on("click", "#example1 TBODY .Delete", function () {
+        if (confirm("Do you want to delete this row?")) {
+            var row = $(this).closest("tr");
+            var DeviceId = row.find("#id").html();
+            $.ajax({
+                type: "POST",
+                url: "/Home/DeleteDevice/",
+                data: '{DeviceId: ' + DeviceId + '}',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    if ($("#example1 TBODY tr").length == 1) {
+                        row.find(".label").html("");
+                        row.find(".text").val("");
+                        row.find(".link").hide();
+
+                    } else {
+                        row.remove();
+
+                    }
+                }
+            });
+        }
+    });
+</script>
+
+

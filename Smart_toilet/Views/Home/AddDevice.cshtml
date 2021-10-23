@@ -1,0 +1,71 @@
+﻿@model Smart_toilet.DAL.tbl_Toilet
+@{
+    ViewBag.Title = "AddDevice";
+}
+<div class="wrapper">
+
+    <!-- Left side column. contains the logo and sidebar -->
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <section class="content">
+            <div class="row">
+                <!-- left column -->
+                <div class="col-md-12">
+                    <!-- general form elements -->
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Add Toilet Details</h3>
+                        </div>
+
+                        <!-- /.box-header -->
+                        <!-- form start -->
+                        @using (Html.BeginForm("AddDevice", "Home", FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            <div class="box-body">
+
+                                <div class="form-group">
+                                    @Html.HiddenFor(model => model.Id)
+                                    <label>Toilet Code</label>
+                                    @Html.EditorFor(model => model.ToiletCode, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.ToiletCode, "", new { @class = "text-danger" })
+                                    <label>Toilet Address</label>
+                                    @Html.EditorFor(model => model.Address, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
+                                    <label>Toilet Let</label>
+                                    @Html.EditorFor(model => model.Lat, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.Lat, "", new { @class = "text-danger" })
+                                    <label>Toilet Long</label>
+                                    @Html.EditorFor(model => model.Lng, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.Lng, "", new { @class = "text-danger" })
+                                    <label>IsActive</label>
+                                    @Html.DropDownListFor(m => m.IsActive, new List<SelectListItem>
+{
+   new SelectListItem{ Text="Yes", Value = "true", Selected = true},
+   new SelectListItem{ Text="No", Value = "false"}
+}, new { @class = "form-control" })
+
+
+                                </div>
+
+                            </div>
+                            <!-- /.box-body -->
+                            <div class="box-footer">
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+                        }
+                    </div>
+                    <!-- /.box -->
+
+
+
+                </div>
+                <!--/.col (left) -->
+
+            </div>
+
+            <!-- /.row -->
+        </section>
+    </div>
+</div>
+
