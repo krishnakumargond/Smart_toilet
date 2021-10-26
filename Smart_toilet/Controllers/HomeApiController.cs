@@ -5,7 +5,10 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Web.Hosting;
 using System.Web.Http;
+using Smart_toilet.Common;
+using Smart_toilet.Helper;
 using Smart_toilet.Models;
 
 namespace Smart_toilet.Controllers
@@ -13,6 +16,19 @@ namespace Smart_toilet.Controllers
     [RoutePrefix("api/Device")]
     public class HomeApiController : ApiController
     {
+        #region Properties
+        private EnvHelper _AjeeviContext;
+        private EnvHelper oAjeeviContext
+        {
+            get
+            {
+                if (_AjeeviContext == null)
+                    _AjeeviContext = new EnvHelper();
+                return _AjeeviContext;
+            }
+        }
+        #endregion
+
         [HttpGet]
         [Route("Getdeviceinfo")]
         public List<DeviceInfo> Get()
@@ -176,9 +192,29 @@ namespace Smart_toilet.Controllers
         public HttpResponseMessage AddRainDevice(string ImeiNo, float raifall, float light)
         {
             string msg = "FACK" + Environment.NewLine;
-
+            bool IsEnv = false;
             try
             {
+                EnvironmentInfo info = new EnvironmentInfo();
+                switch (ImeiNo)
+                {
+                    case "867322034442855":
+                        info.DeviceId = "ENE00212";
+                        IsEnv = true;
+                        break;
+                    case "867322036674703":
+                        info.DeviceId = "ENE00053";
+                        IsEnv = true;
+                        break;
+                }
+
+                info.CO2 = "0";
+                info.Noise = "";
+                info.Light = LightHelper.GetLightValue(CommonHelper.IndianStandard(DateTime.UtcNow));
+                info.Timstamp = CommonHelper.IndianStandard(DateTime.UtcNow.AddSeconds(-5));
+                if (IsEnv)
+                    HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => oAjeeviContext.InsertEnvData(info, 1,false));
+
                 SqlConnection con = new SqlConnection();
                 con.ConnectionString = @"Server=ecosmartdc.com;Database=dbSoubhagya;User ID=sa;Password=india@123;";
 
@@ -210,9 +246,30 @@ namespace Smart_toilet.Controllers
         public HttpResponseMessage AddRainDeviceBackend(string ImeiNo, float raifall, float light)
         {
             string msg = "FACK" + Environment.NewLine;
-
+            bool IsEnv = false;
             try
             {
+                EnvironmentInfo info = new EnvironmentInfo();
+                switch (ImeiNo)
+                {
+                    case "867322034442855":
+                        info.DeviceId = "ENE00212";
+                        IsEnv = true;
+                        break;
+                    case "867322036674703":
+                        info.DeviceId = "ENE00053";
+                        IsEnv = true;
+                        break;
+                }
+
+                info.CO2 = "0";
+                info.Noise = "";
+                info.Light = LightHelper.GetLightValue(CommonHelper.IndianStandard(DateTime.UtcNow));
+                info.RainLvl = raifall.ToString();
+                info.Timstamp = CommonHelper.IndianStandard(DateTime.UtcNow.AddSeconds(-5));
+                if (IsEnv)
+                    HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => oAjeeviContext.InsertEnvData(info, 1, true));
+
                 SqlConnection con = new SqlConnection();
                 con.ConnectionString = @"Server=ecosmartdc.com;Database=dbSoubhagya;User ID=sa;Password=india@123;";
 
