@@ -118,6 +118,39 @@ namespace Smart_toilet.Controllers
 
             SqlCommand sqlCmd = new SqlCommand("sp_GetAllRainSensor", con);
             sqlCmd.CommandType = CommandType.StoredProcedure;
+            sqlCmd.Parameters.AddWithValue("@IsType", 2);
+            con.Open();
+
+            reader = sqlCmd.ExecuteReader();
+            DevicerainInfo emp = null;
+            while (reader.Read())
+            {
+                emp = new DevicerainInfo();
+                emp.RainSensorId = Convert.ToInt32(reader["RainSensorId"].ToString());
+                emp.Imei = reader["IMEINO"].ToString();
+                emp.raifall = reader["RAIFALL"].ToString();
+                emp.light = reader["LIGHT"].ToString();
+                emp.Tdate = reader["Tdate"].ToString();
+                lst.Add(emp);
+            }
+            con.Close();
+            return lst;
+
+
+        }
+
+        [HttpGet]
+        [Route("GetRaindeviceBackendinfo")]
+        public List<DevicerainInfo> GetRaindeviceBackendinfo()
+        {
+            List<DevicerainInfo> lst = new List<DevicerainInfo>();
+            SqlDataReader reader = null;
+            SqlConnection con = new SqlConnection();
+            con.ConnectionString = @"Server=ecosmartdc.com;Database=dbSoubhagya;User ID=sa;Password=india@123;";
+
+            SqlCommand sqlCmd = new SqlCommand("sp_GetAllRainSensor", con);
+            sqlCmd.CommandType = CommandType.StoredProcedure;
+            sqlCmd.Parameters.AddWithValue("@IsType", 1);
 
             con.Open();
 
@@ -154,6 +187,41 @@ namespace Smart_toilet.Controllers
                 sqlCmd.Parameters.AddWithValue("@IMEINO", ImeiNo);
                 sqlCmd.Parameters.AddWithValue("@RAIFALL", raifall);
                 sqlCmd.Parameters.AddWithValue("@LIGHT", light);
+                sqlCmd.Parameters.AddWithValue("@IsType", 1);
+                con.Open();
+                sqlCmd.ExecuteNonQuery();
+                con.Close();
+                msg = "PACK" + Environment.NewLine;
+            }
+
+            catch (Exception ex)
+            {
+                Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+                msg = "FACK" + Environment.NewLine;
+            }
+            var resp = new HttpResponseMessage(HttpStatusCode.OK);
+            resp.Content = new StringContent(msg, System.Text.Encoding.UTF8, "text/plain");
+            return resp;
+
+
+        }
+        [HttpGet]
+        [Route("AddRainDeviceBackend")]
+        public HttpResponseMessage AddRainDeviceBackend(string ImeiNo, float raifall, float light)
+        {
+            string msg = "FACK" + Environment.NewLine;
+
+            try
+            {
+                SqlConnection con = new SqlConnection();
+                con.ConnectionString = @"Server=ecosmartdc.com;Database=dbSoubhagya;User ID=sa;Password=india@123;";
+
+                SqlCommand sqlCmd = new SqlCommand("sp_InsertRainSensor", con);
+                sqlCmd.CommandType = CommandType.StoredProcedure;
+                sqlCmd.Parameters.AddWithValue("@IMEINO", ImeiNo);
+                sqlCmd.Parameters.AddWithValue("@RAIFALL", raifall);
+                sqlCmd.Parameters.AddWithValue("@LIGHT", light);
+                sqlCmd.Parameters.AddWithValue("@IsType", 2);
                 con.Open();
                 sqlCmd.ExecuteNonQuery();
                 con.Close();
